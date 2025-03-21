@@ -62,14 +62,24 @@ app.get('/posts',(req, res)=> {
     }
 })
 
-app.get("/test/posts/:postid/comments", (req, res) => {
-  const comments = commentSchema.find(req.params.postid);
+app.get("/fetchComments/:postId", async (req, res) => {
+  const { postId } = req.params;
 
-  if (!comments) {
-    return res.status(404).json({ message: "No comments" });
+  try {
+    const response = await axios.get(`http://20.244.56.144/test/posts/${postId}/comments`, {
+      headers: {
+        Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiZXhwIjoxNzQyNTM0Mzc1LCJpYXQiOjE3NDI1MzQwNzUsImlzcyI6IkFmZm9yZG1lZCIsImp0aSI6IjBjOGRjZDE0LWFiZjgtNGQ3MS1hMWYyLTcyNTU2OTBmMTFlYyIsInN1YiI6InNpbmdoc3VyZW5kZXIyODIzMUBnbWFpbC5jb20ifSwiY29tcGFueU5hbWUiOiJhZmZvcmRtZWQiLCJjbGllbnRJRCI6IjBjOGRjZDE0LWFiZjgtNGQ3MS1hMWYyLTcyNTU2OTBmMTFlYyIsImNsaWVudFNlY3JldCI6InF6SmxQbGtIYkZJRmhrSmoiLCJvd25lck5hbWUiOiJTdXJlbmRlciBzaW5naCIsIm93bmVyRW1haWwiOiJzaW5naHN1cmVuZGVyMjgyMzFAZ21haWwuY29tIiwicm9sbE5vIjoiNzMwNDEwMTAxMDE4In0.vfLEHhR0kJJP4xBy4Cil6-6CGgvnV-2RZr1LvYTcopY", // Replace with actual token
+        "Content-Type": "application/json",
+      },
+    });
+
+    res.json(response.data); 
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: "Error fetching comments",
+      error: error.response?.data || error.message,
+    });
   }
-
-  res.json(comments);
 });
 
 
